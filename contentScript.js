@@ -5,7 +5,7 @@
 
     const fetchBookmarks = () => {
         return new Promise((resolve) => {
-            chrome.storage.sync.get([currentVideo], (obj) => {
+            browser.storage.sync.get([currentVideo], (obj) => {
                 resolve(obj[currentVideo] ? JSON.parse(obj[currentVideo]) : []);
             });
         });
@@ -20,7 +20,7 @@
 
         currentVideoBookmarks = await fetchBookmarks();
 
-        chrome.storage.sync.set({
+        browser.storage.sync.set({
             [currentVideo]: JSON.stringify([...currentVideoBookmarks, newBookmark].sort((a, b) => a.time - b.time))
         });
 
@@ -35,7 +35,7 @@
         if (!bookmarkBtnExists) {
             const bookmarkBtn = document.createElement("img");
 
-            bookmarkBtn.src = chrome.runtime.getURL("assets/bookmark.png");
+            bookmarkBtn.src = browser.runtime.getURL("assets/bookmark.png");
             bookmarkBtn.className = "ytp-button " + "bookmark-btn";
             bookmarkBtn.title = "Click to bookmark current timestamp";
 
@@ -49,7 +49,7 @@
     };
     newVideoLoaded();
 
-    chrome.runtime.onMessage.addListener((obj, sender, response) => {
+    browser.runtime.onMessage.addListener((obj, sender, response) => {
         const { type, value, videoId } = obj;
 
         if (type === "NEW") {
@@ -59,7 +59,7 @@
             youtubePlayer.currentTime = value;
         } else if (type === "DELETE") {
             currentVideoBookmarks = currentVideoBookmarks.filter((b) => b.time != value);
-            chrome.storage.sync.set({ [currentVideo]: JSON.stringify(currentVideoBookmarks) });
+            browser.storage.sync.set({ [currentVideo]: JSON.stringify(currentVideoBookmarks) });
 
             response(currentVideoBookmarks);
         }
